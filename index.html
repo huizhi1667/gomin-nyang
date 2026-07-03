@@ -150,6 +150,11 @@
   .choice.isnew .clv { background: #8fae85; }
   .tip { font-size: 12px; color: #a39a8d; margin-top: 12px; }
   .hint { position: fixed; bottom: 12px; width: 100%; text-align: center; color: #565d6b; font-size: 12px; font-weight: 700; pointer-events: none; z-index: 5; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
+  #scoreBar {
+    position: fixed; bottom: 10px; right: 14px; z-index: 5; pointer-events: none;
+    font-size: 12px; font-weight: 800; color: rgba(87,83,76,.55);
+    font-variant-numeric: tabular-nums; text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  }
 </style>
 
 <canvas id="game"></canvas>
@@ -160,7 +165,6 @@
     <div class="pill">🎚️ <span>Lv.<b id="lvl">1</b></span></div>
     <div class="pill">🌰 <b id="pearls">0</b></div>
     <div class="pill" title="사라진 걱정">💭 <b id="kills">0</b></div>
-    <div class="pill" title="점수">🏆 <b id="score">0</b></div>
     <button class="pill" id="muteBtn" style="pointer-events:auto;cursor:pointer;border:none" title="소리 켜기/끄기 (M)">🔊</button>
   </div>
   <div class="bars">
@@ -171,6 +175,7 @@
 </div>
 
 <div class="hint" id="hint">🕹️ 방향키/WASD 또는 화면을 눌러 이동 · 공격은 자동!</div>
+<div id="scoreBar">🏆 <span id="score">0</span></div>
 
 <!-- Loading -->
 <div class="overlay show" id="loadScreen">
@@ -420,7 +425,7 @@
 
   // ===================== STATE =====================
   let state = "start"; // start | play | levelup | over
-  let last = 0, timeSurvived = 0, kills = 0, spawnAcc = 0, pendingLevels = 0, walked = 0;
+  let last = 0, timeSurvived = 0, kills = 0, spawnAcc = 0, pendingLevels = 0, walked = 0, dispScore = 0;
   let shake = 0;
   const keys = {};
   const cam = { x: 0, y: 0 };
@@ -429,7 +434,7 @@
   let player, enemies, projectiles, eProjs, pearls, effects;
 
   function resetGame() {
-    timeSurvived = 0; kills = 0; spawnAcc = 0; pendingLevels = 0; walked = 0; shake = 0;
+    timeSurvived = 0; kills = 0; spawnAcc = 0; pendingLevels = 0; walked = 0; dispScore = 0; shake = 0;
     enemies = []; projectiles = []; eProjs = []; pearls = []; effects = [];
     player = {
       x: 0, y: 0, r: 16, icon: "🐥",
@@ -988,7 +993,9 @@
     el("hpFill").style.width = clamp(p.hp / p.maxHp * 100, 0, 100) + "%";
     el("hpLabel").textContent = "❤️ " + Math.max(0, Math.ceil(p.hp)) + "/" + p.maxHp;
     el("xpFill").style.width = clamp(p.xp / p.xpNext * 100, 0, 100) + "%";
-    el("score").textContent = calcScore();
+    // 점수는 부드럽게 따라 올라가게 (뚝딱거림 방지)
+    dispScore += (calcScore() - dispScore) * 0.06;
+    el("score").textContent = Math.floor(dispScore).toLocaleString();
     let row = "";
     for (const k in p.weapons) row += `<div class="wchip">${WEAPONS[k].icon}<small>${p.weapons[k]._l}</small></div>`;
     for (const k in p.passives) row += `<div class="wchip">${PASSIVES[k].icon}<small>${p.passives[k]}</small></div>`;
