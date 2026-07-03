@@ -393,14 +393,14 @@
     orbit: {
       name: "빙글별", icon: "🌟", max: 8,
       desc: "반짝별 변신! 쏘는 대신 별이 주위를 빙글빙글 돌아요",
-      init: () => ({ count: 3, dmg: 26, spin: 2.7, rMin: 45, rMax: 135, phase: 0, r: 13 }),
-      up: (s) => { s.count += (s._l % 2 === 0) ? 1 : 0; s.dmg += 15; s.spin += .25; s.rMax += 13; },
+      init: () => ({ count: 3, dmg: 26, spin: 3.6, radius: 95, phase: 0, r: 13 }),
+      up: (s) => { s.count += (s._l % 2 === 0) ? 1 : 0; s.dmg += 15; s.spin += .3; s.radius += 10; },
     },
     petal: {
       name: "꽃잎방패", icon: "🌸", max: 8,
       desc: "몸 주위를 도는 꽃잎이 적을 때려요",
-      init: () => ({ count: 2, dmg: 30, radius: 62, spin: 2.4, r: 15, angle: 0 }),
-      up: (s) => { s.count += (s._l % 2 === 0) ? 1 : 0; s.dmg += 18; s.radius += 6; s.spin += .15; },
+      init: () => ({ count: 2, dmg: 30, radius: 62, spin: 3.4, r: 15, angle: 0 }),
+      up: (s) => { s.count += (s._l % 2 === 0) ? 1 : 0; s.dmg += 18; s.radius += 6; s.spin += .25; },
     },
     nova: {
       name: "반짝물결", icon: "💫", max: 8,
@@ -565,8 +565,7 @@
     const s = player.weapons.orbit;
     if (!s) return;
     s.phase += s.spin * dt;
-    // 반경이 숨쉬듯 커졌다 작아졌다 — 가까운 적도 먼 적도 휩쓸기
-    s._rad = s.rMin + (s.rMax - s.rMin) * (0.5 + 0.5 * Math.sin(s.phase * 0.7));
+    s._rad = s.radius; // 고정 반경, 빠른 회전
     for (const e of enemies) if (e._ohc > 0) e._ohc -= dt;
     for (let i = 0; i < s.count; i++) {
       const a = s.phase + (i / s.count) * Math.PI * 2;
@@ -880,7 +879,7 @@
     // orbit acorns
     const orb = player.weapons.orbit;
     if (orb) {
-      const orad = orb._rad || orb.rMin;
+      const orad = orb._rad || orb.radius;
       for (let i = 0; i < orb.count; i++) {
         const a = orb.phase + (i / orb.count) * Math.PI * 2;
         const ox = player.x + Math.cos(a) * orad, oy = player.y + Math.sin(a) * orad;
