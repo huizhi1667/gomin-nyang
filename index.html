@@ -934,35 +934,37 @@
     for (const ep of eProjs) {
       ctx.save();
       ctx.translate(ep.x, ep.y);
-      if (ep.style === "seed") { // 🟠 모이 알갱이
-        ctx.fillStyle = "#e8a94e"; ctx.strokeStyle = "#9c6b24"; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(0, 0, ep.r, 0, 7); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = "rgba(255,236,200,.9)";
-        ctx.beginPath(); ctx.arc(-ep.r * .3, -ep.r * .3, ep.r * .35, 0, 7); ctx.fill();
-      } else if (ep.style === "spark") { // 🟣 회전 다이아몬드
+      if (ep.style === "seed") { // 💛 형광 옐로
+        ctx.globalAlpha = .4; ctx.fillStyle = "#ffee00";
+        ctx.beginPath(); ctx.arc(0, 0, ep.r + 6, 0, 7); ctx.fill();
+        ctx.globalAlpha = 1; ctx.fillStyle = "#ffc400";
+        ctx.beginPath(); ctx.arc(0, 0, ep.r, 0, 7); ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.arc(-ep.r * .25, -ep.r * .25, ep.r * .4, 0, 7); ctx.fill();
+      } else if (ep.style === "spark") { // 💜 형광 퍼플 다이아몬드
         ctx.rotate(ep.spin);
-        ctx.globalAlpha = .35; ctx.fillStyle = "#b06ce0";
-        ctx.beginPath(); ctx.moveTo(0, -ep.r - 5); ctx.lineTo(ep.r + 5, 0); ctx.lineTo(0, ep.r + 5); ctx.lineTo(-ep.r - 5, 0); ctx.closePath(); ctx.fill();
-        ctx.globalAlpha = 1; ctx.fillStyle = "#8a3fd0";
+        ctx.globalAlpha = .45; ctx.fillStyle = "#e04dff";
+        ctx.beginPath(); ctx.moveTo(0, -ep.r - 7); ctx.lineTo(ep.r + 7, 0); ctx.lineTo(0, ep.r + 7); ctx.lineTo(-ep.r - 7, 0); ctx.closePath(); ctx.fill();
+        ctx.globalAlpha = 1; ctx.fillStyle = "#c400ff";
         ctx.beginPath(); ctx.moveTo(0, -ep.r); ctx.lineTo(ep.r, 0); ctx.lineTo(0, ep.r); ctx.lineTo(-ep.r, 0); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = "#f0dcff";
-        ctx.beginPath(); ctx.moveTo(0, -ep.r * .4); ctx.lineTo(ep.r * .4, 0); ctx.lineTo(0, ep.r * .4); ctx.lineTo(-ep.r * .4, 0); ctx.closePath(); ctx.fill();
-      } else if (ep.style === "orb") { // 🩷 보스 오브
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.moveTo(0, -ep.r * .45); ctx.lineTo(ep.r * .45, 0); ctx.lineTo(0, ep.r * .45); ctx.lineTo(-ep.r * .45, 0); ctx.closePath(); ctx.fill();
+      } else if (ep.style === "orb") { // 🩷 형광 핑크 오브
         const pulse = 1 + Math.sin(ep.spin * 1.5) * .15;
-        ctx.globalAlpha = .3; ctx.fillStyle = "#ff6fb0";
-        ctx.beginPath(); ctx.arc(0, 0, (ep.r + 6) * pulse, 0, 7); ctx.fill();
-        ctx.globalAlpha = .95; ctx.fillStyle = "#f04f96";
+        ctx.globalAlpha = .45; ctx.fillStyle = "#ff4da6";
+        ctx.beginPath(); ctx.arc(0, 0, (ep.r + 7) * pulse, 0, 7); ctx.fill();
+        ctx.globalAlpha = 1; ctx.fillStyle = "#ff1e8c";
         ctx.beginPath(); ctx.arc(0, 0, ep.r * pulse, 0, 7); ctx.fill();
-        ctx.fillStyle = "#ffdeed";
-        ctx.beginPath(); ctx.arc(-ep.r * .25, -ep.r * .25, ep.r * .35, 0, 7); ctx.fill();
-      } else { // 🔵 레이저
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath(); ctx.arc(-ep.r * .25, -ep.r * .25, ep.r * .4, 0, 7); ctx.fill();
+      } else { // 💙 형광 시안 레이저
         ctx.rotate(Math.atan2(ep.vy, ep.vx));
         ctx.lineCap = "round";
-        ctx.globalAlpha = .35; ctx.strokeStyle = "#4fc3ff"; ctx.lineWidth = 9;
-        ctx.beginPath(); ctx.moveTo(-16, 0); ctx.lineTo(16, 0); ctx.stroke();
-        ctx.globalAlpha = .9; ctx.strokeStyle = "#1ea6ff"; ctx.lineWidth = 4;
+        ctx.globalAlpha = .45; ctx.strokeStyle = "#00e5ff"; ctx.lineWidth = 11;
+        ctx.beginPath(); ctx.moveTo(-17, 0); ctx.lineTo(17, 0); ctx.stroke();
+        ctx.globalAlpha = 1; ctx.strokeStyle = "#00b8ff"; ctx.lineWidth = 4.5;
         ctx.beginPath(); ctx.moveTo(-14, 0); ctx.lineTo(14, 0); ctx.stroke();
-        ctx.globalAlpha = 1; ctx.strokeStyle = "#e0f6ff"; ctx.lineWidth = 1.6;
+        ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2;
         ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(12, 0); ctx.stroke();
       }
       ctx.restore();
