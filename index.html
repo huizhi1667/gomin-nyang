@@ -375,12 +375,12 @@
   const ENEMY_TYPES = {
     bug:   { icon: "🐛", img: "bug1",  size: 18, hp: 8,   spd: 55,  dmg: 6,  xp: 1, from: 0 },
     germ:  { icon: "🦠", img: "bug3",  size: 20, hp: 14,  spd: 70,  dmg: 8,  xp: 1, from: 30 },
-    ghost: { icon: "👻", img: "bird1", size: 20, hp: 12,  spd: 95,  dmg: 9,  xp: 2, from: 55 },
+    ghost: { icon: "👻", img: "bird1", size: 20, hp: 12,  spd: 95,  dmg: 9,  xp: 2, from: 55, shoot: { cd: 4.5, spd: 140, style: "seed" } },
     bat:   { icon: "🦇", img: "bird1", size: 18, hp: 16,  spd: 110, dmg: 9,  xp: 2, from: 80 },
     snail: { icon: "🐌", img: "bug2",  size: 26, hp: 55,  spd: 38,  dmg: 14, xp: 4, from: 100 },
-    alien: { icon: "👾", img: "bird1", size: 22, hp: 34,  spd: 78,  dmg: 12, xp: 3, from: 130, shoot: { cd: 4.2, spd: 150, style: "seed" } },
-    robot: { icon: "🤖", img: "bird1", size: 24, hp: 75,  spd: 88,  dmg: 17, xp: 5, from: 170, shoot: { cd: 3.2, spd: 260, style: "laser" } },
-    imp:   { icon: "😈", img: "bird1", size: 20, hp: 45,  spd: 125, dmg: 14, xp: 4, from: 220, shoot: { cd: 3.6, spd: 220, style: "spark" } },
+    alien: { icon: "👾", img: "bird1", size: 22, hp: 34,  spd: 78,  dmg: 12, xp: 3, from: 130, shoot: { cd: 3.2, spd: 160, style: "seed", n: 2 } },
+    robot: { icon: "🤖", img: "bird1", size: 24, hp: 75,  spd: 88,  dmg: 17, xp: 5, from: 170, shoot: { cd: 2.4, spd: 260, style: "laser" } },
+    imp:   { icon: "😈", img: "bird1", size: 20, hp: 45,  spd: 125, dmg: 14, xp: 4, from: 220, shoot: { cd: 2.6, spd: 220, style: "spark", n: 2 } },
   };
 
   const WEAPONS = {
@@ -393,8 +393,8 @@
     orbit: {
       name: "빙글별", icon: "🌟", max: 8,
       desc: "반짝별 변신! 쏘는 대신 별이 주위를 빙글빙글 돌아요",
-      init: () => ({ count: 2, dmg: 26, spin: 1.9, rMin: 45, rMax: 125, phase: 0, r: 13 }),
-      up: (s) => { s.count += (s._l % 2 === 0) ? 1 : 0; s.dmg += 15; s.spin += .18; s.rMax += 13; },
+      init: () => ({ count: 3, dmg: 26, spin: 2.7, rMin: 45, rMax: 135, phase: 0, r: 13 }),
+      up: (s) => { s.count += (s._l % 2 === 0) ? 1 : 0; s.dmg += 15; s.spin += .25; s.rMax += 13; },
     },
     petal: {
       name: "꽃잎방패", icon: "🌸", max: 8,
@@ -498,7 +498,7 @@
 
       hitFlash: 0, kx: 0, ky: 0, bob: Math.random() * 6,
     };
-    if (base.shoot) e.shoot = { cd: base.shoot.cd, spd: base.shoot.spd, style: base.shoot.style, t: rand(1.5, base.shoot.cd + 1.5) };
+    if (base.shoot) e.shoot = { cd: base.shoot.cd, spd: base.shoot.spd, style: base.shoot.style, n: base.shoot.n || 1, t: rand(1.5, base.shoot.cd + 1.5) };
     // 80초 이후 엘리트 등장: 크고 튼튼하고 도토리를 왕창 떨어뜨림
     if (!boss && timeSurvived > 80 && Math.random() < .07) {
       e.elite = true; e.r = Math.round(e.r * 1.35);
@@ -510,7 +510,7 @@
       e.icon = "🐲"; e.img = bossAvail.length ? bossAvail[Math.floor(Math.random() * bossAvail.length)] : "bird1";
       e.r = 46; e.hp = e.maxHp = 500 * hpScale;
       e.spd = 55 * spdScale; e.dmg = Math.round(26 * dmgScale); e.xp = Math.round(60 * (1 + timeSurvived / 100)); e.boss = true;
-      e.shoot = { cd: 5, spd: 170, radial: timeSurvived > 240 ? 10 : 6, style: "orb", t: 3 };
+      e.shoot = { cd: 4.2, spd: 170, radial: timeSurvived > 240 ? 12 : 8, style: "orb", t: 3 };
     }
     enemies.push(e);
   }
@@ -663,14 +663,14 @@
     // camera follow
     cam.x = p.x - W / 2; cam.y = p.y - H / 2;
 
-    // spawning (gets faster over time; no rest!)
-    const interval = Math.max(0.2, 1.0 - timeSurvived / 160);
-    const perSpawn = 1 + Math.floor(timeSurvived / 70);
+    // spawning: 물량은 완만하게 (후반 압박은 탄막이 담당)
+    const interval = Math.max(0.24, 1.0 - timeSurvived / 160);
+    const perSpawn = Math.min(3, 1 + Math.floor(timeSurvived / 90));
     spawnAcc += dt;
-    while (spawnAcc >= interval) { spawnAcc -= interval; for (let i = 0; i < perSpawn; i++) if (enemies.length < 320) spawnEnemy(); }
+    while (spawnAcc >= interval) { spawnAcc -= interval; for (let i = 0; i < perSpawn; i++) if (enemies.length < 240) spawnEnemy(); }
     // 30초마다 돌격 웨이브: 사방을 둘러싸는 링 스폰 (40초부터)
     if (Math.floor(timeSurvived / 30) > Math.floor((timeSurvived - dt) / 30) && timeSurvived > 35) {
-      const n = Math.min(36, 6 + Math.floor(timeSurvived / 30) * 2);
+      const n = Math.min(28, 5 + Math.floor(timeSurvived / 30) * 2);
       for (let i = 0; i < n; i++) spawnEnemy(false, (i / n) * Math.PI * 2);
       shake = Math.max(shake, 4); sfx.boss();
     }
@@ -698,12 +698,12 @@
         p.hp -= e.dmg; p.hurtFlash = 0.45; shake = Math.max(shake, 6); sfx.hurt();
         if (p.hp <= 0) { p.hp = 0; gameOver(); return; }
       }
-      // 원거리 공격 (깃털 탄환)
-      if (e.shoot && eProjs.length < 220) {
+      // 원거리 공격 (탄환)
+      if (e.shoot && eProjs.length < 300) {
         e.shoot.t -= dt;
         if (e.shoot.t <= 0 && d < 560) {
           e.shoot.t = e.shoot.cd * rand(.9, 1.15);
-          const pd = e.dmg * .8;
+          const pd = e.dmg * .7;
           const st = e.shoot.style || "laser";
           const pr = { seed: 5, laser: 6, spark: 6, orb: 9 }[st];
           if (e.shoot.radial) { // 보스: 방사형 탄막
@@ -712,9 +712,13 @@
               const a = off + (i / e.shoot.radial) * Math.PI * 2;
               eProjs.push({ x: e.x, y: e.y, vx: Math.cos(a) * e.shoot.spd, vy: Math.sin(a) * e.shoot.spd, r: pr, dmg: pd, life: 4, style: st, spin: 0 });
             }
-          } else { // 조준 사격
-            const a = Math.atan2(p.y - e.y, p.x - e.x);
-            eProjs.push({ x: e.x, y: e.y, vx: Math.cos(a) * e.shoot.spd, vy: Math.sin(a) * e.shoot.spd, r: pr, dmg: pd, life: 3.5, style: st, spin: 0 });
+          } else { // 조준 사격 (n발 부채꼴)
+            const base = Math.atan2(p.y - e.y, p.x - e.x);
+            const n = e.shoot.n || 1;
+            for (let i = 0; i < n; i++) {
+              const a = base + (i - (n - 1) / 2) * 0.22;
+              eProjs.push({ x: e.x, y: e.y, vx: Math.cos(a) * e.shoot.spd, vy: Math.sin(a) * e.shoot.spd, r: pr, dmg: pd, life: 3.5, style: st, spin: 0 });
+            }
           }
           sfx.shootE(st);
         }
