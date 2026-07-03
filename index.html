@@ -82,8 +82,8 @@
   .overcard { background: rgba(250,247,242,.95); margin-bottom: 6px; }
   /* 세로 화면에선 모바일용 일러스트 사용 */
   @media (orientation: portrait) {
-    #startScreen.fullart { background-image: url("start_m.jpg") !important; }
-    #overScreen.fullart { background-image: url("end_m.jpg") !important; }
+    #startScreen.fullart { background-image: url("assets/start_m.jpg") !important; }
+    #overScreen.fullart { background-image: url("assets/end_m.jpg") !important; }
   }
   /* 로딩 화면 */
   #loadScreen { background: #eceae5; }
@@ -182,7 +182,7 @@
 </div>
 
 <!-- Start -->
-<div class="overlay fullart" id="startScreen" style="background-image:url('start_bg.jpg')">
+<div class="overlay fullart" id="startScreen" style="background-image:url('assets/start_bg.jpg')">
   <div class="artbottom">
     <p>"후... 잠깐 바람 좀 쐬고 올게요." — 생각 정리하러 나온 골목,<br>
        미뤄둔 <b>걱정거리들</b>이 우르르 따라 나왔어요! <b>🌰 도토리</b>를 주우며 걸어요 💨</p>
@@ -203,7 +203,7 @@
 </div>
 
 <!-- Game over -->
-<div class="overlay fullart" id="overScreen" style="background-image:url('end_bg.jpg')">
+<div class="overlay fullart" id="overScreen" style="background-image:url('assets/end_bg.jpg')">
   <div class="card overcard">
     <h2>산책 끝, 이제 복귀! 🍃</h2>
     <p id="overStats"></p>
@@ -237,28 +237,28 @@
   const track = im => { preloadList.push(im); return im; };
   const IMGS = {};
   for (const k of ["front", "back", "left", "right"]) {
-    const im = new Image(); im.src = "p_" + k + ".png"; IMGS[k] = track(im);
+    const im = new Image(); im.src = "assets/p_" + k + ".png"; IMGS[k] = track(im);
   }
-  const BG = track(new Image()); BG.src = "bg_tile.jpg";
+  const BG = track(new Image()); BG.src = "assets/bg_tile.jpg";
   const MOBS = {};
   for (const k of ["bug1", "bug2", "bug3", "bird1"]) {
-    const im = new Image(); im.src = "m_" + k + ".png"; MOBS[k] = track(im);
+    const im = new Image(); im.src = "assets/m_" + k + ".png"; MOBS[k] = track(im);
   }
   // 보스 이미지: 파일이 추가되는 대로 자동으로 로테이션에 포함 (없으면 스킵)
   const BOSS_KEYS = ["boss1", "boss2", "boss3", "boss4", "boss5", "boss6"];
   for (const k of BOSS_KEYS) {
-    const im = new Image(); im.src = "m_" + k + ".png"; MOBS[k] = im; // 로딩바 집계엔 제외
+    const im = new Image(); im.src = "assets/m_" + k + ".png"; MOBS[k] = im; // 로딩바 집계엔 제외
   }
   // 회복 음식 (랜덤 드롭): 주먹밥·햄버거·팬케이크·피자·라멘·도넛·컵케이크·붕어빵
   const FOOD_POOL = [9, 6, 3, 13, 14, 18, 20, 23].map(n => {
-    const im = new Image(); im.src = "f_" + n + ".png"; return track(im);
+    const im = new Image(); im.src = "assets/f_" + n + ".png"; return track(im);
   });
-  const COFFEE_IMG = track(new Image()); COFFEE_IMG.src = "f_28.png";
-  const ACORN_IMG = track(new Image()); ACORN_IMG.src = "w_acorn.png";
-  const STAR_IMG = track(new Image()); STAR_IMG.src = "w_star.png";
+  const COFFEE_IMG = track(new Image()); COFFEE_IMG.src = "assets/f_28.png";
+  const ACORN_IMG = track(new Image()); ACORN_IMG.src = "assets/w_acorn.png";
+  const STAR_IMG = track(new Image()); STAR_IMG.src = "assets/w_star.png";
   // 시작/엔딩 일러스트도 미리 로드 (화면 방향에 맞는 것)
   const isPortrait = matchMedia("(orientation: portrait)").matches;
-  for (const src of [isPortrait ? "start_m.jpg" : "start_bg.jpg", isPortrait ? "end_m.jpg" : "end_bg.jpg"]) {
+  for (const src of [isPortrait ? "assets/start_m.jpg" : "assets/start_bg.jpg", isPortrait ? "assets/end_m.jpg" : "assets/end_bg.jpg"]) {
     const im = new Image(); im.src = src; track(im);
   }
   const imgReady = im => im && im.complete && im.naturalWidth > 0;
