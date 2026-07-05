@@ -419,7 +419,7 @@
   const PASSIVES = {
     speed:  { name: "날쌘발",   icon: "👟", max: 6, desc: "이동 속도 +12%",   apply: p => p.speedMul  *= 1.12 },
     heart:  { name: "튼튼",     icon: "❤️", max: 6, desc: "최대 체력 +25, 회복", apply: p => { p.maxHp += 25; p.hp = Math.min(p.maxHp, p.hp + 40); } },
-    magnet: { name: "자석",     icon: "🧲", max: 5, desc: "도토리 수집 범위 +35%", apply: p => p.magnet    *= 1.35 },
+    magnet: { name: "자석",     icon: "🧲", max: 5, desc: "도토리 수집 범위 +20%", apply: p => p.magnet    *= 1.2 },
     power:  { name: "힘",       icon: "💪", max: 6, desc: "모든 공격력 +15%",   apply: p => p.dmgMul    *= 1.15 },
     quick:  { name: "빠른손",   icon: "⏱️", max: 6, desc: "공격 속도 +10%",     apply: p => p.cdMul     *= 0.90 },
     lucky:  { name: "도토리사랑", icon: "💖", max: 5, desc: "도토리 획득량 +25%", apply: p => p.xpMul     *= 1.25 },
@@ -768,7 +768,8 @@
     for (const pe of pearls) {
       pe.vx *= 0.9; pe.vy *= 0.9; pe.x += pe.vx * dt; pe.y += pe.vy * dt;
       const d2 = dist2(pe.x, pe.y, p.x, p.y);
-      if (d2 < p.magnet ** 2) { const d = Math.sqrt(d2) || 1; const pull = 340; pe.x += (p.x - pe.x) / d * pull * dt; pe.y += (p.y - pe.y) / d * pull * dt; }
+      const pullR = pe.food ? 55 : p.magnet; // 음식은 자석 영향 없이 가까이 가야 먹힘
+      if (d2 < pullR ** 2) { const d = Math.sqrt(d2) || 1; const pull = 340; pe.x += (p.x - pe.x) / d * pull * dt; pe.y += (p.y - pe.y) / d * pull * dt; }
       if (d2 < (p.r + 10) ** 2) {
         pe.got = true;
         if (pe.food) {
