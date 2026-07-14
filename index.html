@@ -1135,9 +1135,18 @@
   }
 
   function renderRank(list, me) {
-    el("rankList").innerHTML = list.slice(0, 5).map((r, i) =>
-      `<li${r === me ? ' class="me"' : ""}><span>${["🥇","🥈","🥉","4위","5위"][i]} ${r.name}</span><span>${r.score.toLocaleString()}점</span></li>`
-    ).join("");
+    const rankList = el("rankList");
+    rankList.replaceChildren();
+    list.slice(0, 5).forEach((r, i) => {
+      const item = document.createElement("li");
+      if (r === me) item.classList.add("me");
+      const name = document.createElement("span");
+      const score = document.createElement("span");
+      name.textContent = `${["🥇", "🥈", "🥉", "4위", "5위"][i]} ${r.name}`;
+      score.textContent = `${r.score.toLocaleString()}점`;
+      item.append(name, score);
+      rankList.appendChild(item);
+    });
   }
 
   function gameOver() {
