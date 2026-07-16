@@ -275,7 +275,9 @@
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 
   // ===================== AUDIO =====================
+  const AUDIO_PREF_KEY = "gomin_muted";
   let AC = null, masterGain, bgmGain, sfxGain, muted = false;
+  try { muted = localStorage.getItem(AUDIO_PREF_KEY) === "true"; } catch {}
   const NOTE = m => 440 * Math.pow(2, (m - 69) / 12);
 
   function tone(freq, dur, { type = "square", vol = .5, slide = 0, delay = 0, dest = null } = {}) {
@@ -365,11 +367,20 @@
     startBgm();
   }
 
+  function updateMuteButton() {
+    const btn = document.getElementById("muteBtn");
+    btn.textContent = muted ? "🔇" : "🔊";
+    btn.title = muted ? "소리 켜기 (M)" : "소리 끄기 (M)";
+    btn.setAttribute("aria-pressed", String(muted));
+  }
+
   function toggleMute() {
     muted = !muted;
     if (AC && masterGain) masterGain.gain.value = muted ? 0 : 1;
-    document.getElementById("muteBtn").textContent = muted ? "🔇" : "🔊";
+    try { localStorage.setItem(AUDIO_PREF_KEY, String(muted)); } catch {}
+    updateMuteButton();
   }
+  updateMuteButton();
 
   // ===================== DEFINITIONS =====================
   const ENEMY_TYPES = {
