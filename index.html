@@ -459,6 +459,11 @@
   }
 
   // ===================== INPUT =====================
+  function resetInput() {
+    for (const key in keys) delete keys[key];
+    pointer.down = false;
+  }
+
   window.addEventListener("keydown", e => {
     if (e.target && e.target.tagName === "INPUT") return; // 이름 입력 중엔 게임 키 무시
     keys[e.key.toLowerCase()] = true;
@@ -466,6 +471,8 @@
     if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(e.key.toLowerCase())) e.preventDefault();
   });
   window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
+  window.addEventListener("blur", resetInput);
+  document.addEventListener("visibilitychange", () => { if (document.hidden) resetInput(); });
 
   function setPointer(e) {
     const t = e.touches ? e.touches[0] : e;
@@ -477,6 +484,7 @@
   canvas.addEventListener("touchstart", e => { pointer.down = true; setPointer(e); e.preventDefault(); }, { passive: false });
   canvas.addEventListener("touchmove", e => { setPointer(e); e.preventDefault(); }, { passive: false });
   window.addEventListener("touchend", () => pointer.down = false);
+  window.addEventListener("touchcancel", resetInput);
 
   // ===================== SPAWNING =====================
   function spawnEnemy(boss = false, angOverride = null) {
