@@ -71,6 +71,7 @@
   }
   .overlay.fullart > * { position: relative; z-index: 1; }
   #startScreen.fullart { cursor: pointer; }
+  #startScreen.fullart:focus-visible { outline: 4px solid #fff; outline-offset: -8px; }
   .artbottom {
     background: rgba(250,247,242,.92); border: 3px solid #ded5c7; border-radius: 20px;
     padding: 12px 20px; margin-bottom: 6px; max-width: 560px; width: 100%;
@@ -189,12 +190,12 @@
 </div>
 
 <!-- Start -->
-<div class="overlay fullart" id="startScreen" style="background-image:url('assets/start_bg.jpg')">
+<div class="overlay fullart" id="startScreen" style="background-image:url('assets/start_bg.jpg')" role="button" tabindex="0" aria-label="산책 시작">
   <div class="artbottom">
     <p>"후... 잠깐 바람 좀 쐬고 올게요." — 생각 정리하러 나온 골목,<br>
        미뤄둔 <b>걱정거리들</b>이 우르르 따라 나왔어요! <b>🌰 도토리</b>를 주우며 걸어요 💨</p>
     <p class="ctrl">🕹️ 방향키 · WASD · 화면 터치/드래그로 이동 · 공격은 자동!</p>
-    <p class="go">👆 아무 곳이나 눌러서 산책 시작!</p>
+    <p class="go">👆 클릭 또는 Enter로 산책 시작!</p>
   </div>
 </div>
 
@@ -1253,6 +1254,7 @@
       if (loaded >= total) setTimeout(() => {
         el("loadScreen").classList.remove("show");
         el("startScreen").classList.add("show");
+        el("startScreen").focus({ preventScroll: true });
       }, 350);
     };
     preloadList.forEach(im => {
@@ -1275,6 +1277,9 @@
     setTimeout(() => el("hint").style.display = "none", 4000);
   }
   el("startScreen").onclick = startGame;
+  el("startScreen").addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); startGame(); }
+  });
   el("retryBtn").onclick = startGame;
   el("muteBtn").onclick = toggleMute;
   el("saveBtn").onclick = saveScore;
