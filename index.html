@@ -439,7 +439,7 @@
 
   // ===================== STATE =====================
   let state = "start"; // start | play | levelup | over
-  let last = 0, timeSurvived = 0, kills = 0, spawnAcc = 0, pendingLevels = 0, walked = 0, dispScore = 0;
+  let last = 0, timeSurvived = 0, kills = 0, spawnAcc = 0, pendingLevels = 0, walked = 0, dispScore = 0, lastLoadout = "";
   let shake = 0;
   const keys = {};
   const cam = { x: 0, y: 0 };
@@ -448,7 +448,7 @@
   let player, enemies, projectiles, eProjs, pearls, effects;
 
   function resetGame() {
-    timeSurvived = 0; kills = 0; spawnAcc = 0; pendingLevels = 0; walked = 0; dispScore = 0; shake = 0;
+    timeSurvived = 0; kills = 0; spawnAcc = 0; pendingLevels = 0; walked = 0; dispScore = 0; shake = 0; lastLoadout = "";
     enemies = []; projectiles = []; eProjs = []; pearls = []; effects = [];
     player = {
       x: 0, y: 0, r: 16, icon: "🐥",
@@ -1024,10 +1024,17 @@
     // 점수는 부드럽게 따라 올라가게 (뚝딱거림 방지)
     dispScore += (calcScore() - dispScore) * 0.06;
     el("score").textContent = Math.floor(dispScore).toLocaleString();
-    let row = "";
-    for (const k in p.weapons) row += `<div class="wchip">${WEAPONS[k].icon}<small>${p.weapons[k]._l}</small></div>`;
-    for (const k in p.passives) row += `<div class="wchip">${PASSIVES[k].icon}<small>${p.passives[k]}</small></div>`;
-    el("weaponRow").innerHTML = row;
+    const loadout = [
+      ...Object.entries(p.weapons).map(([k, s]) => `w:${k}:${s._l}`),
+      ...Object.entries(p.passives).map(([k, lv]) => `p:${k}:${lv}`),
+    ].join("|");
+    if (loadout !== lastLoadout) {
+      lastLoadout = loadout;
+      let row = "";
+      for (const k in p.weapons) row += `<div class="wchip">${WEAPONS[k].icon}<small>${p.weapons[k]._l}</small></div>`;
+      for (const k in p.passives) row += `<div class="wchip">${PASSIVES[k].icon}<small>${p.passives[k]}</small></div>`;
+      el("weaponRow").innerHTML = row;
+    }
   }
 
   // ===================== LEVEL UP =====================
