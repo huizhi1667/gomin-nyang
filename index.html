@@ -132,6 +132,7 @@
     transition: transform .06s;
   }
   .btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #93673d; }
+  .btn:disabled { cursor: wait; filter: grayscale(.35); opacity: .7; }
   .choices { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px; }
   @media (max-width: 480px){ .choices { grid-template-columns: 1fr; } }
   .choice {
@@ -1108,7 +1109,7 @@
   // ===================== GAME OVER & 랭킹 =====================
   const RANK_KEY = "gomin_rank", NAME_KEY = "gomin_name";
   const loadRank = () => { try { return JSON.parse(localStorage.getItem(RANK_KEY)) || []; } catch { return []; } };
-  let lastEntry = null;
+  let lastEntry = null, savingScore = false;
 
   // ---- 글로벌 랭킹 (Firebase Firestore REST) — 설정 전엔 로컬 랭킹으로 동작 ----
   const FB = { projectId: "gomin-nyang", apiKey: "AIzaSyDpcV9Nhi6npxktuZlIFKjzMV9zUmUUdGg" };
@@ -1193,6 +1194,7 @@
       `<small style="color:#a39a8d">⏱️ ${mm}:${ss} · 🎚️ Lv.${player.level} · 🌰 ${Math.round(player.xp + (player.level - 1) * 10)}</small>`;
     // 랭킹 UI 초기화
     lastEntry = { name: "", score, t: mm + ":" + ss };
+    savingScore = false;
     el("rankMsg").textContent = "";
     el("saveRow").style.display = "flex";
     el("saveBtn").disabled = false;
@@ -1207,7 +1209,9 @@
   }
 
   async function saveScore() {
-    if (!lastEntry) return;
+    if (!lastEntry || savingScore) return;
+    savingScore = true;
+    el("saveBtn").disabled = true;
     const name = (el("nameInput").value.trim() || "뽀짝이").slice(0, 8);
     lastEntry.name = name;
     try { localStorage.setItem(NAME_KEY, name); } catch {}
