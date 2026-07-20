@@ -441,7 +441,7 @@
 
   // ===================== STATE =====================
   let state = "start"; // start | play | levelup | over
-  let last = 0, timeSurvived = 0, kills = 0, spawnAcc = 0, pendingLevels = 0, walked = 0, dispScore = 0, lastLoadout = "";
+  let last = 0, timeSurvived = 0, kills = 0, acornsCollected = 0, spawnAcc = 0, pendingLevels = 0, walked = 0, dispScore = 0, lastLoadout = "";
   let shake = 0;
   const keys = {};
   const cam = { x: 0, y: 0 };
@@ -450,7 +450,7 @@
   let player, enemies, projectiles, eProjs, pearls, effects;
 
   function resetGame() {
-    timeSurvived = 0; kills = 0; spawnAcc = 0; pendingLevels = 0; walked = 0; dispScore = 0; shake = 0; lastLoadout = "";
+    timeSurvived = 0; kills = 0; acornsCollected = 0; spawnAcc = 0; pendingLevels = 0; walked = 0; dispScore = 0; shake = 0; lastLoadout = "";
     enemies = []; projectiles = []; eProjs = []; pearls = []; effects = [];
     player = {
       x: 0, y: 0, r: 16, icon: "🐥",
@@ -797,7 +797,7 @@
         if (pe.food) {
           p.hp = Math.min(p.maxHp, p.hp + 30); sfx.eat();
           effects.push({ type: "float", icon: "💚", x: p.x, y: p.y - 24, life: .7, max: .7 });
-        } else { sfx.pearl(); gainXp(Math.round(pe.xp * p.xpMul)); if (state !== "play") return; }
+        } else { acornsCollected++; sfx.pearl(); gainXp(Math.round(pe.xp * p.xpMul)); if (state !== "play") return; }
       }
     }
     pearls = pearls.filter(pe => !pe.got);
@@ -1017,9 +1017,8 @@
     const ss = String(Math.floor(timeSurvived % 60)).padStart(2, "0");
     el("timer").textContent = mm + ":" + ss;
     el("lvl").textContent = p.level;
-    el("pearls").textContent = kills; // total pearls ~ from kills; show collected below
     el("kills").textContent = kills;
-    el("pearls").textContent = Math.round(p.xp + (p.level - 1) * 10);
+    el("pearls").textContent = acornsCollected;
     el("hpFill").style.width = clamp(p.hp / p.maxHp * 100, 0, 100) + "%";
     el("hpLabel").textContent = "❤️ " + Math.max(0, Math.ceil(p.hp)) + "/" + p.maxHp;
     el("xpFill").style.width = clamp(p.xp / p.xpNext * 100, 0, 100) + "%";
@@ -1192,7 +1191,7 @@
       `발자국을 따라 걱정거리 <b>${kills}개</b>가 사라졌어요.<br>` +
       `<span style="display:inline-block;margin-top:8px;font-size:16px;color:#b07d4f">"좋아, 다시 힘내서 일해볼까!" 🐱💪</span><br>` +
       `<span style="display:inline-block;margin-top:6px;font-size:20px;color:#a97648">🏆 ${score.toLocaleString()}점</span><br>` +
-      `<small style="color:#a39a8d">⏱️ ${mm}:${ss} · 🎚️ Lv.${player.level} · 🌰 ${Math.round(player.xp + (player.level - 1) * 10)}</small>`;
+      `<small style="color:#a39a8d">⏱️ ${mm}:${ss} · 🎚️ Lv.${player.level} · 🌰 ${acornsCollected}</small>`;
     // 랭킹 UI 초기화
     lastEntry = { name: "", score, t: mm + ":" + ss };
     savingScore = false;
