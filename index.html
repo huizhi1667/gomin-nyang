@@ -196,7 +196,7 @@
   <div class="artbottom">
     <p>"후... 잠깐 바람 좀 쐬고 올게요." — 생각 정리하러 나온 골목,<br>
        미뤄둔 <b>걱정거리들</b>이 우르르 따라 나왔어요! <b>🌰 도토리</b>를 주우며 걸어요 💨</p>
-    <p class="ctrl">🕹️ 방향키 · WASD · 화면 터치/드래그로 이동 · 공격은 자동!</p>
+    <p class="ctrl">🕹️ 방향키 · WASD · 화면 터치/드래그로 이동 · P로 일시정지 · 공격은 자동!</p>
     <p class="go">👆 클릭 또는 Enter로 산책 시작!</p>
   </div>
 </div>
@@ -209,6 +209,17 @@
     <div class="choices" id="choices"></div>
     <div class="tip">☕ 하나 고르면 커피도 한 모금! (체력 +15)</div>
     <div class="tip" id="lvlTip"></div>
+  </div>
+</div>
+
+<!-- Pause -->
+<div class="overlay" id="pauseScreen">
+  <div class="card">
+    <div class="big-emoji">🐾</div>
+    <h2>잠깐 쉬어가요</h2>
+    <p>걱정거리들도 잠시 멈춰 있어요.</p>
+    <button class="btn" id="resumeBtn">산책 계속하기 🌿</button>
+    <p class="tip">P 키를 눌러도 이어서 할 수 있어요.</p>
   </div>
 </div>
 
@@ -480,9 +491,15 @@
 
   window.addEventListener("keydown", e => {
     if (e.target && e.target.tagName === "INPUT") return; // 이름 입력 중엔 게임 키 무시
-    keys[e.key.toLowerCase()] = true;
-    if (e.key.toLowerCase() === "m" && !e.repeat) toggleMute();
-    if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(e.key.toLowerCase())) e.preventDefault();
+    const key = e.key.toLowerCase();
+    if (key === "p" && !e.repeat) {
+      if (state === "play") pauseGame();
+      else if (state === "pause") resumeGame();
+      return;
+    }
+    keys[key] = true;
+    if (key === "m" && !e.repeat) toggleMute();
+    if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) e.preventDefault();
   });
   window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
   window.addEventListener("blur", resetInput);
@@ -499,6 +516,22 @@
   canvas.addEventListener("touchmove", e => { setPointer(e); e.preventDefault(); }, { passive: false });
   window.addEventListener("touchend", () => pointer.down = false);
   window.addEventListener("touchcancel", resetInput);
+
+  function pauseGame() {
+    if (state !== "play") return;
+    state = "pause";
+    resetInput();
+    duckBgm(true);
+    el("pauseScreen").classList.add("show");
+  }
+
+  function resumeGame() {
+    if (state !== "pause") return;
+    el("pauseScreen").classList.remove("show");
+    state = "play";
+    last = performance.now();
+    duckBgm(false);
+  }
 
   // ===================== SPAWNING =====================
   function spawnEnemy(boss = false, angOverride = null) {
@@ -1283,6 +1316,7 @@
     el("startScreen").classList.remove("show");
     el("overScreen").classList.remove("show");
     el("levelScreen").classList.remove("show");
+    el("pauseScreen").classList.remove("show");
     state = "play"; last = performance.now();
     updateHud();
     setTimeout(() => el("hint").style.display = "none", 4000);
@@ -1292,6 +1326,7 @@
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); startGame(); }
   });
   el("retryBtn").onclick = startGame;
+  el("resumeBtn").onclick = resumeGame;
   el("muteBtn").onclick = toggleMute;
   el("saveBtn").onclick = saveScore;
   el("nameInput").addEventListener("keydown", e => { if (e.key === "Enter") saveScore(); });
