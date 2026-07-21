@@ -506,7 +506,12 @@
   });
   window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
   window.addEventListener("blur", resetInput);
-  document.addEventListener("visibilitychange", () => { if (document.hidden) resetInput(); });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      resetInput();
+      pauseGame();
+    }
+  });
 
   function setPointer(e) {
     const t = e.touches ? e.touches[0] : e;
@@ -526,6 +531,7 @@
     resetInput();
     duckBgm(true);
     el("pauseScreen").classList.add("show");
+    el("resumeBtn").focus({ preventScroll: true });
   }
 
   function resumeGame() {
