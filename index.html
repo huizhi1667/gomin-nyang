@@ -173,7 +173,7 @@
       <div class="bar"><span id="hpFill" style="width:100%"></span><div class="barlabel" id="hpLabel">❤️ 100/100</div></div>
       <div class="bar"><span id="xpFill" style="width:0%"></span><div class="barlabel">🌰 도토리</div></div>
     </div>
-    <button class="pill" id="muteBtn" style="pointer-events:auto;cursor:pointer;border:none" title="소리 켜기/끄기 (M)">🔊</button>
+    <button class="pill" id="muteBtn" style="pointer-events:auto;cursor:pointer;border:none" title="소리 켜기/끄기 (M)" aria-label="소리 끄기">🔊</button>
   </div>
 </div>
 
@@ -231,9 +231,9 @@
   <div class="card overcard">
     <h2>산책 끝, 이제 복귀! 🍃</h2>
     <p id="overStats"></p>
-    <div id="rankMsg"></div>
+    <div id="rankMsg" role="status" aria-live="polite"></div>
     <div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-top:8px" id="saveRow">
-      <input id="nameInput" maxlength="8" placeholder="이름">
+      <input id="nameInput" maxlength="8" placeholder="이름" aria-label="랭킹에 표시할 이름">
       <button class="btn small" id="saveBtn">기록 저장 🏆</button>
     </div>
     <ol id="rankList"></ol>
@@ -388,6 +388,7 @@
     const btn = document.getElementById("muteBtn");
     btn.textContent = muted ? "🔇" : "🔊";
     btn.title = muted ? "소리 켜기 (M)" : "소리 끄기 (M)";
+    btn.setAttribute("aria-label", muted ? "소리 켜기" : "소리 끄기");
     btn.setAttribute("aria-pressed", String(muted));
   }
 
