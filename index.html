@@ -1151,7 +1151,19 @@
 
   // ===================== GAME OVER & 랭킹 =====================
   const RANK_KEY = "gomin_rank", NAME_KEY = "gomin_name";
-  const loadRank = () => { try { return JSON.parse(localStorage.getItem(RANK_KEY)) || []; } catch { return []; } };
+  const loadRank = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(RANK_KEY));
+      if (!Array.isArray(saved)) return [];
+      return saved
+        .filter(entry => entry && typeof entry.name === "string" && Number.isFinite(Number(entry.score)))
+        .map(entry => ({
+          name: entry.name.trim().slice(0, 8) || "뽀짝이",
+          score: Math.max(0, Math.round(Number(entry.score))),
+          t: typeof entry.t === "string" ? entry.t : "",
+        }));
+    } catch { return []; }
+  };
   let lastEntry = null, savingScore = false;
 
   // ---- 글로벌 랭킹 (Firebase Firestore REST) — 설정 전엔 로컬 랭킹으로 동작 ----
