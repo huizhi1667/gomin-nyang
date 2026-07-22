@@ -1170,9 +1170,15 @@
   const FB = { projectId: "gomin-nyang", apiKey: "AIzaSyDpcV9Nhi6npxktuZlIFKjzMV9zUmUUdGg" };
   const fbEnabled = () => !!(FB.projectId && FB.apiKey);
   const fbBase = () => `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents`;
+  async function fbFetch(url, options) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try { return await fetch(url, { ...options, signal: controller.signal }); }
+    finally { clearTimeout(timeout); }
+  }
 
   async function fbSubmit(entry) {
-    const r = await fetch(`${fbBase()}/scores?key=${FB.apiKey}`, {
+    const r = await fbFetch(`${fbBase()}/scores?key=${FB.apiKey}`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fields: {
         name: { stringValue: entry.name },
@@ -1185,7 +1191,7 @@
   }
 
   async function fbTop(n = 5) {
-    const r = await fetch(`${fbBase()}:runQuery?key=${FB.apiKey}`, {
+    const r = await fbFetch(`${fbBase()}:runQuery?key=${FB.apiKey}`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ structuredQuery: {
         from: [{ collectionId: "scores" }],
@@ -1202,7 +1208,7 @@
   }
 
   async function fbRank(score) { // 나보다 높은 점수 개수 + 1 = 내 순위
-    const r = await fetch(`${fbBase()}:runAggregationQuery?key=${FB.apiKey}`, {
+    const r = await fbFetch(`${fbBase()}:runAggregationQuery?key=${FB.apiKey}`, {
       method: "POST", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ structuredAggregationQuery: {
         structuredQuery: {
