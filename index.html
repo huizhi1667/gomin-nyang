@@ -139,7 +139,13 @@
   .choice {
     pointer-events: auto; cursor: pointer; background: #fff; border: 3px solid #e2d9cb; border-radius: 20px;
     padding: 14px 8px; text-align: center; transition: transform .08s, border-color .08s, box-shadow .08s;
-    box-shadow: 0 5px 0 rgba(125,115,100,.25);
+    box-shadow: 0 5px 0 rgba(125,115,100,.25); position: relative;
+  }
+  .choice .cnum {
+    position: absolute; top: 8px; left: 8px; width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    background: #ece2d1; color: #a08a63; border-radius: 8px;
+    font-size: 12px; font-weight: 800;
   }
   .choice:hover { transform: translateY(-4px); border-color: #c9a878; box-shadow: 0 9px 0 rgba(125,115,100,.3); }
   .choice:active { transform: translateY(0); }
@@ -210,7 +216,7 @@
     <h2>✨ 레벨 업! ✨</h2>
     <p style="margin-top:0">도토리가 가득 찼어요! 하나를 골라요 🎁</p>
     <div class="choices" id="choices"></div>
-    <div class="tip">☕ 하나 고르면 커피도 한 모금! (체력 +15)</div>
+    <div class="tip">☕ 하나 고르면 커피도 한 모금! (체력 +15) · 1·2·3 키로도 선택</div>
     <div class="tip" id="lvlTip"></div>
   </div>
 </div>
@@ -499,6 +505,12 @@
     if (key === "p" && !e.repeat) {
       if (state === "play") pauseGame();
       else if (state === "pause") resumeGame();
+      return;
+    }
+    // 레벨업 화면: 1·2·3 키로 선택 (키보드만으로도 플레이 가능하도록)
+    if (state === "levelup" && !e.repeat && (key === "1" || key === "2" || key === "3")) {
+      const card = el("choices").children[+key - 1];
+      if (card) { e.preventDefault(); card.click(); }
       return;
     }
     keys[key] = true;
@@ -1118,7 +1130,8 @@
       else { icon = "❤️‍🩹"; name = "회복"; desc = "체력을 40 회복해요"; lvtxt = "보너스"; }
       const div = document.createElement("div");
       div.className = "choice" + (isNew ? " isnew" : "");
-      div.innerHTML = `<div class="ci">${icon}</div><div class="cn">${name}</div><div class="cd">${desc}</div><span class="clv">${lvtxt}</span>`;
+      const num = picks.length > 1 ? `<span class="cnum" aria-hidden="true">${picks.indexOf(c) + 1}</span>` : "";
+      div.innerHTML = `${num}<div class="ci">${icon}</div><div class="cn">${name}</div><div class="cd">${desc}</div><span class="clv">${lvtxt}</span>`;
       div.onclick = () => applyChoice(c);
       box.appendChild(div);
     }
