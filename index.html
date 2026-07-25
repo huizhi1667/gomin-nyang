@@ -1280,6 +1280,8 @@
       renderRank(loadRank(), null);
     }
     el("overScreen").classList.add("show");
+    // 키보드만으로도 바로 다시 시작할 수 있게 재시작 버튼에 포커스 (일시정지 화면과 동일)
+    el("retryBtn").focus({ preventScroll: true });
   }
 
   async function saveScore() {
