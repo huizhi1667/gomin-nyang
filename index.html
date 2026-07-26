@@ -297,6 +297,11 @@
   const dist2 = (ax, ay, bx, by) => { const dx = ax - bx, dy = ay - by; return dx * dx + dy * dy; };
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 
+  // 동작 감소 설정: CSS 애니메이션 외에 캔버스 화면 흔들림도 함께 꺼줌
+  const motionQuery = matchMedia("(prefers-reduced-motion: reduce)");
+  let reduceMotion = motionQuery.matches;
+  motionQuery.addEventListener("change", e => { reduceMotion = e.matches; });
+
   // ===================== AUDIO =====================
   const AUDIO_PREF_KEY = "gomin_muted";
   let AC = null, masterGain, bgmGain, sfxGain, muted = false;
@@ -903,7 +908,7 @@
   function render() {
     ctx.save();
     let sx = 0, sy = 0;
-    if (shake > 0) { sx = rand(-shake, shake); sy = rand(-shake, shake); }
+    if (shake > 0 && !reduceMotion) { sx = rand(-shake, shake); sy = rand(-shake, shake); }
     ctx.clearRect(0, 0, W, H);
 
     ctx.translate(-cam.x + sx, -cam.y + sy);
