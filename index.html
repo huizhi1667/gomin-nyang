@@ -1272,7 +1272,10 @@
     el("rankMsg").textContent = "";
     el("saveRow").style.display = "flex";
     el("saveBtn").disabled = false;
-    el("nameInput").value = localStorage.getItem(NAME_KEY) || "";
+    // 저장 공간이 막힌 브라우저(시크릿 모드 등)에서도 결과 화면은 떠야 함
+    let savedName = "";
+    try { savedName = localStorage.getItem(NAME_KEY) || ""; } catch {}
+    el("nameInput").value = savedName;
     if (fbEnabled()) {
       el("rankList").innerHTML = "<li><span>🌍 전체 랭킹 불러오는 중...</span></li>";
       fbTop(5).then(top => renderRank(top, null)).catch(() => renderRank(loadRank(), null));
