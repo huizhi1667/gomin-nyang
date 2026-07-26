@@ -140,7 +140,9 @@
     pointer-events: auto; cursor: pointer; background: #fff; border: 3px solid #e2d9cb; border-radius: 20px;
     padding: 14px 8px; text-align: center; transition: transform .08s, border-color .08s, box-shadow .08s;
     box-shadow: 0 5px 0 rgba(125,115,100,.25); position: relative;
+    font-family: inherit; font-size: inherit; width: 100%; display: block;
   }
+  .choice:focus-visible { outline: 4px solid #c9a878; outline-offset: 3px; }
   .choice .cnum {
     position: absolute; top: 8px; left: 8px; width: 20px; height: 20px;
     display: flex; align-items: center; justify-content: center;
@@ -508,6 +510,8 @@
 
   window.addEventListener("keydown", e => {
     if (e.target && e.target.tagName === "INPUT") return; // 이름 입력 중엔 게임 키 무시
+    // 버튼에 포커스가 있을 때의 Enter/Space는 브라우저 기본 클릭 동작에 맡김 (아래 Space preventDefault와 충돌)
+    if (e.target && e.target.tagName === "BUTTON" && (e.key === "Enter" || e.key === " ")) return;
     const key = e.key.toLowerCase();
     if (key === "p" && !e.repeat) {
       if (state === "play") pauseGame();
@@ -1136,7 +1140,8 @@
       else if (c.kind === "wnew") { const d = WEAPONS[c.key]; icon = d.icon; name = d.name; desc = d.desc; lvtxt = c.key === "orbit" ? "⭐ 변신!" : "새 무기!"; isNew = true; }
       else if (c.kind === "pup") { const d = PASSIVES[c.key], lv = player.passives[c.key] || 0; icon = d.icon; name = d.name; desc = d.desc; lvtxt = lv ? `Lv.${lv} → ${lv + 1}` : "새 능력!"; isNew = !lv; }
       else { icon = "❤️‍🩹"; name = "회복"; desc = "체력을 40 회복해요"; lvtxt = "보너스"; }
-      const div = document.createElement("div");
+      const div = document.createElement("button");
+      div.type = "button";
       div.className = "choice" + (isNew ? " isnew" : "");
       const num = picks.length > 1 ? `<span class="cnum" aria-hidden="true">${picks.indexOf(c) + 1}</span>` : "";
       div.innerHTML = `${num}<div class="ci">${icon}</div><div class="cn">${name}</div><div class="cd">${desc}</div><span class="clv">${lvtxt}</span>`;
@@ -1144,6 +1149,8 @@
       box.appendChild(div);
     }
     el("levelScreen").classList.add("show");
+    // 첫 카드에 포커스 — Tab/Enter만으로도 고를 수 있게
+    if (box.firstElementChild) box.firstElementChild.focus({ preventScroll: true });
   }
 
   function applyChoice(c) {
