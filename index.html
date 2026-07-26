@@ -260,7 +260,9 @@
     canvas.style.width = W + "px"; canvas.style.height = H + "px";
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
-  window.addEventListener("resize", resize); resize();
+  // 일시정지 중엔 루프가 멈춰 있어서, 크기가 바뀌면 비워진 캔버스를 한 번 다시 그려줘야 함
+  window.addEventListener("resize", () => { resize(); if (state === "pause") render(); });
+  resize();
 
   // ===================== IMAGE ASSETS =====================
   const preloadList = [];
