@@ -525,7 +525,8 @@
     if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(key)) e.preventDefault();
   });
   window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
-  window.addEventListener("blur", resetInput);
+  // 창이 포커스를 잃을 때도 멈춤 (탭 전환 외에 다른 앱으로 옮겨가는 경우)
+  window.addEventListener("blur", () => { resetInput(); pauseGame(); });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       resetInput();
