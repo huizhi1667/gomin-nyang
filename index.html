@@ -719,6 +719,41 @@
     if (pendingLevels > 0 && state === "play") openLevelUp();
   }
 
+  // 적끼리 겹치지 않게 밀어내기.
+  // 전수 비교는 후반 240마리에서 프레임당 3만 번에 가까워지므로, 인접 격자 안에서만 비교한다.
+  // 밀어내는 거리는 최대 (46+46)*0.8 = 74px(보스끼리)이라 격자 96px + 3x3 이웃이면 놓치는 쌍이 없다.
+  const SEP_CELL = 96;
+  const sepGrid = new Map();
+  function separateEnemies() {
+    sepGrid.clear();
+    for (let i = 0; i < enemies.length; i++) {
+      const e = enemies[i]; e._gi = i;
+      const cx = Math.floor(e.x / SEP_CELL), cy = Math.floor(e.y / SEP_CELL);
+      const key = cx + "," + cy;
+      let cell = sepGrid.get(key);
+      if (!cell) { cell = []; cell.cx = cx; cell.cy = cy; sepGrid.set(key, cell); }
+      cell.push(e);
+    }
+    for (const cell of sepGrid.values()) {
+      for (const a of cell) {
+        for (let ox = -1; ox <= 1; ox++) for (let oy = -1; oy <= 1; oy++) {
+          const near = sepGrid.get((cell.cx + ox) + "," + (cell.cy + oy));
+          if (!near) continue;
+          for (const b of near) {
+            if (b._gi <= a._gi) continue; // 같은 쌍을 두 번 밀지 않도록
+            const dx = b.x - a.x, dy = b.y - a.y; const rr = (a.r + b.r) * 0.8;
+            const d2 = dx * dx + dy * dy;
+            if (d2 < rr * rr && d2 > 0.01) {
+              const d = Math.sqrt(d2); const push = (rr - d) * 0.5;
+              const ux = dx / d, uy = dy / d;
+              a.x -= ux * push; a.y -= uy * push; b.x += ux * push; b.y += uy * push;
+            }
+          }
+        }
+      }
+    }
+  }
+
   // ===================== UPDATE =====================
   function update(dt) {
     const p = player;
@@ -813,19 +848,7 @@
       }
     }
     // light separation to avoid full stacking
-    for (let i = 0; i < enemies.length; i++) {
-      const a = enemies[i];
-      for (let j = i + 1; j < enemies.length; j++) {
-        const b = enemies[j];
-        const dx = b.x - a.x, dy = b.y - a.y; const rr = (a.r + b.r) * 0.8;
-        const d2 = dx * dx + dy * dy;
-        if (d2 < rr * rr && d2 > 0.01) {
-          const d = Math.sqrt(d2); const push = (rr - d) * 0.5;
-          const ux = dx / d, uy = dy / d;
-          a.x -= ux * push; a.y -= uy * push; b.x += ux * push; b.y += uy * push;
-        }
-      }
-    }
+    separateEnemies();
     enemies = enemies.filter(e => !e.dead);
 
     // projectiles
