@@ -888,7 +888,11 @@
         if (pe.food) {
           p.hp = Math.min(p.maxHp, p.hp + 30); sfx.eat();
           effects.push({ type: "float", icon: "💚", x: p.x, y: p.y - 24, life: .7, max: .7 });
-        } else { acornsCollected++; sfx.pearl(); gainXp(Math.round(pe.xp * p.xpMul)); if (state !== "play") return; }
+        } else {
+          acornsCollected++; sfx.pearl(); gainXp(Math.round(pe.xp * p.xpMul));
+          // 레벨업 화면이 뜨면 여기서 빠져나가는데, 먹은 도토리를 치우지 않으면 화면 뒤에 계속 남아 보인다
+          if (state !== "play") { pearls = pearls.filter(q => !q.got); return; }
+        }
       }
     }
     pearls = pearls.filter(pe => !pe.got);
