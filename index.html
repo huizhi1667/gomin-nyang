@@ -196,9 +196,9 @@
 <!-- Loading -->
 <div class="overlay show" id="loadScreen">
   <div>
-    <div class="big-emoji" style="text-align:center">🐾</div>
+    <div class="big-emoji" style="text-align:center" aria-hidden="true">🐾</div>
     <div class="loadbar"><span id="loadFill"></span></div>
-    <p id="loadTxt">산책 준비 중... 0%</p>
+    <p id="loadTxt" role="status" aria-live="polite">산책 준비 중... 0%</p>
   </div>
 </div>
 
@@ -213,9 +213,9 @@
 </div>
 
 <!-- Level up -->
-<div class="overlay" id="levelScreen">
+<div class="overlay" id="levelScreen" role="dialog" aria-modal="true" aria-labelledby="levelTitle">
   <div class="card">
-    <h2>✨ 레벨 업! ✨</h2>
+    <h2 id="levelTitle">✨ 레벨 업! ✨</h2>
     <p style="margin-top:0">도토리가 가득 찼어요! 하나를 골라요 🎁</p>
     <div class="choices" id="choices"></div>
     <div class="tip">☕ 하나 고르면 커피도 한 모금! (체력 +15) · 1·2·3 키로도 선택</div>
@@ -224,10 +224,10 @@
 </div>
 
 <!-- Pause -->
-<div class="overlay" id="pauseScreen">
+<div class="overlay" id="pauseScreen" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
   <div class="card">
-    <div class="big-emoji">🐾</div>
-    <h2>잠깐 쉬어가요</h2>
+    <div class="big-emoji" aria-hidden="true">🐾</div>
+    <h2 id="pauseTitle">잠깐 쉬어가요</h2>
     <p>걱정거리들도 잠시 멈춰 있어요.</p>
     <button class="btn" id="resumeBtn">산책 계속하기 🌿</button>
     <p class="tip">P 키를 눌러도 이어서 할 수 있어요.</p>
@@ -235,16 +235,16 @@
 </div>
 
 <!-- Game over -->
-<div class="overlay fullart" id="overScreen" style="background-image:url('assets/end_bg.jpg')">
+<div class="overlay fullart" id="overScreen" style="background-image:url('assets/end_bg.jpg')" role="dialog" aria-modal="true" aria-labelledby="overTitle">
   <div class="card overcard">
-    <h2>산책 끝, 이제 복귀! 🍃</h2>
+    <h2 id="overTitle">산책 끝, 이제 복귀! 🍃</h2>
     <p id="overStats"></p>
     <div id="rankMsg" role="status" aria-live="polite"></div>
     <div style="display:flex;gap:8px;justify-content:center;align-items:center;margin-top:8px" id="saveRow">
       <input id="nameInput" maxlength="8" placeholder="이름" aria-label="랭킹에 표시할 이름">
       <button class="btn small" id="saveBtn">기록 저장 🏆</button>
     </div>
-    <ol id="rankList"></ol>
+    <ol id="rankList" aria-label="랭킹 상위 5명"></ol>
     <button class="btn" id="retryBtn">한 바퀴 더 돌기 🌿</button>
   </div>
 </div>
