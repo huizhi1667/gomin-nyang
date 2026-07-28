@@ -612,6 +612,20 @@
     return best;
   }
 
+  // 가까운 적 n마리만 골라냄. 전체 정렬(240마리 복사 + O(n log n))은 n이 8 이하일 때 과하다.
+  function nearestEnemies(x, y, n) {
+    const best = []; // {e, d} 거리 오름차순, 최대 n개
+    for (const e of enemies) {
+      const d = dist2(x, y, e.x, e.y);
+      if (best.length === n && d >= best[n - 1].d) continue;
+      let i;
+      if (best.length < n) { best.push({ e, d }); i = best.length - 1; }
+      else { i = n - 1; best[i] = { e, d }; }
+      while (i > 0 && best[i - 1].d > best[i].d) { const t = best[i - 1]; best[i - 1] = best[i]; best[i] = t; i--; }
+    }
+    return best.map(o => o.e);
+  }
+
   function fireWeapons(dt) {
     const p = player;
     for (const key in p.weapons) {
@@ -620,7 +634,7 @@
         s.cd -= dt;
         if (s.cd <= 0 && enemies.length) {
           s.cd = s.interval * p.cdMul;
-          const targets = [...enemies].sort((a, b) => dist2(p.x, p.y, a.x, a.y) - dist2(p.x, p.y, b.x, b.y)).slice(0, s.count);
+          const targets = nearestEnemies(p.x, p.y, s.count);
           for (let i = 0; i < s.count; i++) {
             const t = targets[i] || targets[0];
             const a = Math.atan2(t.y - p.y, t.x - p.x) + (targets[i] ? 0 : rand(-.3, .3));
