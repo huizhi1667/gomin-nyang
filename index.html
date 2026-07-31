@@ -1245,7 +1245,20 @@
         }));
     } catch { return []; }
   };
-  let lastEntry = null, savingScore = false;
+  let lastEntry = null, savingScore = false, savedLocalEntry = null;
+
+  // 로컬 랭킹에 저장 (오프라인 백업 겸).
+  // 서버 저장 실패 후 다시 시도할 수 있어야 하므로, 같은 기록이 중복으로 쌓이지 않게 이전에 쓴 것은 걷어낸다.
+  function saveLocal(entry) {
+    const prev = savedLocalEntry;
+    const list = loadRank().filter(r => !(prev && r.name === prev.name && r.score === prev.score && r.t === prev.t));
+    list.push(entry);
+    list.sort((a, b) => b.score - a.score);
+    const top = list.slice(0, 10);
+    try { localStorage.setItem(RANK_KEY, JSON.stringify(top)); } catch {}
+    savedLocalEntry = { name: entry.name, score: entry.score, t: entry.t };
+    return top;
+  }
 
   // ---- 글로벌 랭킹 (Firebase Firestore REST) — 설정 전엔 로컬 랭킹으로 동작 ----
   const FB = { projectId: "gomin-nyang", apiKey: "AIzaSyDpcV9Nhi6npxktuZlIFKjzMV9zUmUUdGg" };
@@ -1336,10 +1349,11 @@
       `<small style="color:#a39a8d">⏱️ ${mm}:${ss} · 🎚️ Lv.${player.level} · 🌰 ${acornsCollected}</small>`;
     // 랭킹 UI 초기화
     lastEntry = { name: "", score, t: mm + ":" + ss };
-    savingScore = false;
+    savingScore = false; savedLocalEntry = null;
     el("rankMsg").textContent = "";
     el("saveRow").style.display = "flex";
     el("saveBtn").disabled = false;
+    el("saveBtn").textContent = "기록 저장 🏆";
     // 저장 공간이 막힌 브라우저(시크릿 모드 등)에서도 결과 화면은 떠야 함
     let savedName = "";
     try { savedName = localStorage.getItem(NAME_KEY) || ""; } catch {}
@@ -1362,12 +1376,7 @@
     const name = (el("nameInput").value.trim() || "뽀짝이").slice(0, 8);
     lastEntry.name = name;
     try { localStorage.setItem(NAME_KEY, name); } catch {}
-    // 로컬 저장 (오프라인 백업 겸)
-    const list = loadRank();
-    list.push(lastEntry);
-    list.sort((a, b) => b.score - a.score);
-    const top = list.slice(0, 10);
-    try { localStorage.setItem(RANK_KEY, JSON.stringify(top)); } catch {}
+    const top = saveLocal(lastEntry);
     el("saveRow").style.display = "none";
     sfx.pick();
     if (fbEnabled()) {
@@ -1380,6 +1389,11 @@
       } catch {
         el("rankMsg").textContent = "🌐 서버 연결 실패 — 이 브라우저에만 저장됐어요";
         renderRank(top, lastEntry);
+        // 실패한 채로 끝내지 않고 다시 올려볼 수 있게 저장 버튼을 되살린다
+        savingScore = false;
+        el("saveBtn").disabled = false;
+        el("saveBtn").textContent = "다시 시도 🔄";
+        el("saveRow").style.display = "flex";
       }
     } else {
       const rank = top.indexOf(lastEntry) + 1;
