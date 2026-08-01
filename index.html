@@ -1440,6 +1440,7 @@
   })();
 
   // ===================== BUTTONS =====================
+  let hintTimer = 0;
   function startGame() {
     initAudio(); duckBgm(false);
     resetGame();
@@ -1449,7 +1450,10 @@
     el("pauseScreen").classList.remove("show");
     state = "play"; last = performance.now();
     updateHud();
-    setTimeout(() => el("hint").style.display = "none", 4000);
+    // 매 판 다시 보여준다. 이전 타이머를 취소하지 않으면 남은 타이머가 새 판의 안내를 일찍 지운다.
+    clearTimeout(hintTimer);
+    el("hint").style.display = "";
+    hintTimer = setTimeout(() => el("hint").style.display = "none", 4000);
   }
   el("startScreen").onclick = startGame;
   el("startScreen").addEventListener("keydown", e => {
