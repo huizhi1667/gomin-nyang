@@ -978,9 +978,11 @@
     // 아스팔트 배경 타일
     if (imgReady(BG)) {
       const TW = 768, TH = 512;
-      const bx0 = Math.floor(cam.x / TW) * TW, by0 = Math.floor(cam.y / TH) * TH;
-      for (let gx = bx0; gx < cam.x + W; gx += TW)
-        for (let gy = by0; gy < cam.y + H; gy += TH)
+      // 흔들리는 동안엔 화면이 최대 shake만큼 밀려서 보이므로, 그만큼 여유를 두고 깔아야 가장자리에 빈틈이 없다
+      const m = Math.ceil(shake);
+      const bx0 = Math.floor((cam.x - m) / TW) * TW, by0 = Math.floor((cam.y - m) / TH) * TH;
+      for (let gx = bx0; gx < cam.x + W + m; gx += TW)
+        for (let gy = by0; gy < cam.y + H + m; gy += TH)
           ctx.drawImage(BG, gx, gy, TW, TH);
     }
 
