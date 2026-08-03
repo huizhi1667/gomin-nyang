@@ -1236,17 +1236,22 @@
 
   // ===================== GAME OVER & 랭킹 =====================
   const RANK_KEY = "gomin_rank", NAME_KEY = "gomin_name";
+
+  // 로컬이든 서버든 기록은 같은 규칙으로 정리한다.
+  // 서버 컬렉션은 공개 API 키로 누구나 쓸 수 있어서, 이름 길이를 제한하지 않으면 긴 이름 하나로 랭킹 카드가 깨진다.
+  const cleanEntry = (name, score, t) => ({
+    name: String(name ?? "").trim().slice(0, 8) || "뽀짝이",
+    score: Math.max(0, Math.round(Number(score) || 0)),
+    t: typeof t === "string" ? t.slice(0, 8) : "",
+  });
+
   const loadRank = () => {
     try {
       const saved = JSON.parse(localStorage.getItem(RANK_KEY));
       if (!Array.isArray(saved)) return [];
       return saved
         .filter(entry => entry && typeof entry.name === "string" && Number.isFinite(Number(entry.score)))
-        .map(entry => ({
-          name: entry.name.trim().slice(0, 8) || "뽀짝이",
-          score: Math.max(0, Math.round(Number(entry.score))),
-          t: typeof entry.t === "string" ? entry.t : "",
-        }));
+        .map(entry => cleanEntry(entry.name, entry.score, entry.t));
     } catch { return []; }
   };
   let lastEntry = null, savingScore = false, savedLocalEntry = null;
@@ -1301,7 +1306,7 @@
     const rows = await r.json();
     return rows.filter(x => x.document).map(x => {
       const f = x.document.fields || {};
-      return { name: f.name?.stringValue || "?", score: parseInt(f.score?.integerValue || "0", 10), t: f.t?.stringValue || "" };
+      return cleanEntry(f.name?.stringValue, f.score?.integerValue, f.t?.stringValue);
     });
   }
 
